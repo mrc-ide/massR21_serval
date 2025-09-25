@@ -1,0 +1,26 @@
+# Cran
+dplyr
+data.table
+janitor
+purrr
+tidyr
+retry
+zoo
+ggplot2
+cowplot
+ggrepel
+stringr
+tidyverse
+viridis
+png
+grid
+
+# Also use the mrc-ide universe
+repo::https://mrc-ide.r-universe.dev
+orderly2
+
+# Github 
+github::kellymccain28/malariasimulation_agescaling # from JC's adult scaling work 
+# github::mrc-ide/malariasimulation
+#github::mrc-ide/postie
+#github::mrc-ide/cali
