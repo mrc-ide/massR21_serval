@@ -13,6 +13,8 @@ orderly2::orderly_resource('extract_site_data.R')
 source('extract_site_data.R')
 orderly2::orderly_resource('parameterize_site.R')
 source('parameterize_site.R')
+orderly2::orderly_resource('calibration.R')
+source('calibration.R')
 
 # Define outputs of this task 
 # orderly_artefact()
@@ -88,7 +90,7 @@ baseline_bfa_params <- parameterize_site(site_data = bfa_site_info,
                                          run_parameters = run_parameters, 
                                          parameter_draw = 0, 
                                          scenario = 'baseline')
-baseline_gmb_params <- parameterize_site(site_data = bfa_site_info,
+baseline_gmb_params <- parameterize_site(site_data = gmb_site_info,
                                          site_name = 'GMB',
                                          run_parameters = run_parameters, 
                                          parameter_draw = 0, 
@@ -107,7 +109,7 @@ bfa_calibrated <- calibration(
 gmb_calibrated <- calibration(
   params = baseline_gmb_params$param_list,
   site_name = 'GMB',
-  site_data = bfa_site_info,
+  site_data = gmb_site_info,
   EIR_limits = c(0, 1500),
   max_attempts = 20
 )

@@ -10,15 +10,6 @@ parameterize_site <- function(site_data,
                               parameter_draw,
                               scenario){
   
-  # params <- site::site_parameters(
-  #   interventions = site_data$interventions,
-  #   demography = site_data$demography,
-  #   vectors = site_data$vectors,
-  #   seasonality = site_data$seasonality,
-  #   eir = site_data$eir,
-  #   burnin = run_parameters$burnin,
-  #   overrides = list(human_population = run_parameters$population)
-  # )
   # Basic parameters
   params <- malariasimulation::get_parameters(
     overrides = list(
@@ -46,7 +37,7 @@ parameterize_site <- function(site_data,
     proportions = site_data$vectors$vector_species$prop) 
   # may want to update phi_bednets and phi_indoors (see https://github.com/kellymccain28/catchup_extraboosters/blob/main/src/1_create_parameter_list/generate_params.R)
   
-  # Treatment -- question for Lucy: unsure how to use the prop ACT parameter 
+  # Treatment
   # Shape (alpha) 2.516 and scale (beta) 46.68 From Gina's # this is from site::add_drugs
   # fit to Cisse et al data
   SP_params <- c(0.9, 0.32, 2.516, 46.68)
