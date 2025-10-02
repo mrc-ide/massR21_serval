@@ -3,7 +3,7 @@
 #' @param site_data site data for the site
 #' @param inputs model inputs
 #' @param parameter_draw value between 0 and 50
-#' @param scenario baseline (used for calibration), or vaccine scenarios ('r21' or 'r21+mda')
+#' @param scenario baseline (used for calibration), or vaccine scenarios ('mass' or 'mass+MDA')
 parameterize_site <- function(site_data, 
                               site_name,
                               run_parameters,
@@ -23,12 +23,18 @@ parameterize_site <- function(site_data,
   )
   
   # Demography
-  # params <- malariasimulation::set_demography(
-  #     params, 
-  #     agegroups = site_data$demography[site_data$demography$year == 2024,]$age_upper,
-  #     timesteps = 0, 
-  #     deathrates = site_data$demography[site_data$demography$year == 2024,]$adjusted_mortality_rates
-  # )
+  ages <- round(unique(site_data$demography$age_upper) * 365)
+  timesteps <- 365 * (unique(site_data$demography$year) - 2000)
+  deathrates <- site_data$demography$adjusted_mortality_rates / 365
+  deathrates_matrix <- matrix(deathrates, nrow = length(timesteps), byrow = TRUE)
+  # Add parameters
+  params <- malariasimulation::set_demography(
+    parameters = params,
+    agegroups = ages,
+    timesteps = timesteps,
+    deathrates = deathrates_matrix
+  )
+  
   
   # Vectors
   params <- malariasimulation::set_species(
@@ -92,20 +98,69 @@ parameterize_site <- function(site_data,
   params$severe_incidence_rendering_max_ages = unlist(run_parameters$max_ages)
   params$age_group_rendering_min_ages = unlist(run_parameters$min_ages)
   params$age_group_rendering_max_ages = unlist(run_parameters$max_ages)
+  params$prevalence_rendering_min_ages = unlist(run_parameters$min_ages)
+  params$prevalence_rendering_max_ages = unlist(run_parameters$max_ages)
   
-  # if this is a stochastic run, set parameter draw ------------------------------
-  if (parameter_draw > 0){
-    params<- params |>
-      malariasimulation::set_parameter_draw(parameter_draw) 
+  # Scenario parameters
+  
+  adult_scaling <- 0.2
+  ado_scaling <- 0.5
+  
+  vax_min_age <- 6 * (365 / 12)
+  vax_max_age <- 100 * 365
+  
+  peak <- malariasimulation::peak_season_offset(params)
+  
+  mass_timestep <- round(run_parameters$burnin + (peak - (365/12) * 3.5), 0)
+  
+  primary_coverage <- rep(0.75, length(mass_timestep))
+  boost_coverage <- rep(0.75, length(mass_timestep)) # this is not reported in report 
+  
+  # add mass vaccination 
+  if(scenario == 'mass' | scenario == 'mass+MDA'){
+    
+    pars <- malariasimulation::set_mass_pev(
+      params, 
+      profile = malariasimulation::r21_profile,
+      timesteps = mass_timestep,
+      coverages = primary_coverage,
+      min_ages = vax_min_age, 
+      max_ages = vax_max_age, 
+      min_wait = 0,
+      booster_spacing = 365,
+      booster_coverage = matrix(boost_coverage, nrow = length(mass_timestep), ncol = 1),
+      booster_profile = list(malariasimulation::r21_booster_profile),
+      adult_scaling = adult_scaling, 
+      adolesc_scaling = ado_scaling
+    )
+    
+  } 
+  
+  if (scenario == 'mass+MDA'){
+    
+    MDAcov <- 0.8
+    
+    mdatimesteps <- mass_timestep
+    AL_params_modified <- AL_params
+    AL_params_modified$drug_rel_c <- 0
+    params <- set_drugs(
+      parameters = params, 
+      list(AL_params, SP_AQ_params, DHA_PQP_params)
+    )
+    
+    proppop_notpregnant <- 1 - 0.078/2 # from DHS data - see Get_pregnancy_rate.R in catchup repo
+    
+    # https://www.who.int/publications/i/item/9789241513104 - for drug, min_ages, and coverage (pregnancy)
+    params <- set_mda(
+      parameters = params,
+      drug = 1, # AL for MDA 
+      timesteps = mdatimesteps,
+      coverages = rep(MDAcov * proppop_notpregnant, length(mdatimesteps)), # excluding pregnant women
+      min_ages = rep(6 * round(365/12), length(mdatimesteps)), # starting from 6 months of age 
+      max_ages = rep(100 * 365, length(mdatimesteps))
+    ) 
   }
   
-  if(scenario != 'baseline'){
-    params$pev<- TRUE
-  }
-  
-  
-  params <- malariasimulation::set_equilibrium(params, 
-                                               init_EIR = site_data$eir)
   
   inputs <- list(
     'param_list' = params,
