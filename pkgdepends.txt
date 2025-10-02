@@ -15,12 +15,17 @@ viridis
 png
 grid
 
-# Also use the mrc-ide universe
-repo::https://mrc-ide.r-universe.dev
+# Also use the ncov-ic universe
+repo::https://ncov-ic.r-universe.dev
 orderly2
+odin2
+
+repo::https://mrc-ide.r-universe.dev
+repo::https://cloud.r-project.org
+
 
 # Github 
-github::kellymccain28/malariasimulation_agescaling # from JC's adult scaling work 
+# github::kellymccain28/malariasimulation_agescaling # from JC's adult scaling work # had to download using provision.R
 # github::mrc-ide/malariasimulation
 #github::mrc-ide/postie
 #github::mrc-ide/cali

@@ -11,7 +11,7 @@ library(orderly2)
 
 orderly2::orderly_resource('extract_site_data.R')
 source('extract_site_data.R')
-orderly2::orderly_resource('parameterize_site.R')
+orderly2::orderly_shared_resource('parameterize_site.R')
 source('parameterize_site.R')
 orderly2::orderly_resource('calibration.R')
 source('calibration.R')
@@ -68,9 +68,9 @@ bfa_site_info <- list(
 # Basic model run parameters 
 population <- 1e5 
 
-burnin <- 25*365
+burnin <- 20*365
 
-sim_length <- 15*365
+sim_length <- 20*365
 
 min_ages <- c(0, 5 * 365, 15 * 365, 0)
 max_ages <- c(5 * 365, 15 * 365, 100 * 365, 100 * 365)
@@ -99,7 +99,8 @@ baseline_gmb_params <- parameterize_site(site_data = gmb_site_info,
 
 # Calibrate to trial incidence ----
 bfa_calibrated <- calibration(
-  params = baseline_bfa_params$param_list,
+  params = malariasimulation::set_equilibrium(baseline_bfa_params$param_list,
+                                              init_EIR = bfa_site_info$eir),
   site_name = 'BFA',
   site_data = bfa_site_info,
   EIR_limits = c(0, 1500),
@@ -107,25 +108,62 @@ bfa_calibrated <- calibration(
 )
 
 gmb_calibrated <- calibration(
-  params = baseline_gmb_params$param_list,
+  params = malariasimulation::set_equilibrium(baseline_gmb_params$param_list,
+                                              init_EIR = gmb_site_info$eir),
   site_name = 'GMB',
   site_data = gmb_site_info,
   EIR_limits = c(0, 1500),
   max_attempts = 20
 )
 
-saveRDS(bfa_calibrated, file = 'bfa_eir_calibrated.rds')
-saveRDS(gmb_calibrated, file = 'gmb_eir_calibrated.rds')
-# Scenario parameters
+# saveRDS(bfa_calibrated, file = 'bfa_eir_baseline_calibrated.rds')
+# saveRDS(gmb_calibrated, file = 'gmb_eir_baseline_calibrated.rds')
 
-# adult_scaling <- 0.5
+gmb_site_info$init_EIR <- gmb_calibrated$eir_info$EIR
+bfa_site_info$init_EIR <- bfa_calibrated$eir_info$EIR
+saveRDS(run_parameters, 'run_parameters.rds')
+saveRDS(gmb_site_info, 'gmb_site_info.rds')
+saveRDS(bfa_site_info, 'bfa_site_info.rds')
+
+
+# # Parameterize scenarios 
+# parameter_draws <- c(0,50)
+# scenarios <- c('mass','mass+MDA','none')
 # 
-# ado_scaling <- 0.6
+# bfa_params <- lapply(
+#   scenarios, 
+#   parameterize_site,
+#   site_data = bfa_site_info, 
+#   site_name = 'BFA',
+#   run_parameters = run_parameters, 
+#   parameter_draw = 0
+# )
 # 
-# vax_min_age <- 6 * (365 / 12)
-# vax_max_age <- 100 * 365
+# # bfa_params_equil <- lapply(
+# #   bfa_params,
+# #   function(x){
+# #     malariasimulation::set_equilibrium(x$param_list,
+# #     init_EIR = bfa_calibrated$eir_info$EIR)
+# #   }
+# #   )
 # 
-# scenario_inputs
-
-
-
+# gmb_params <- lapply(
+#   scenarios, 
+#   parameterize_site,
+#   site_data = gmb_site_info, 
+#   site_name = 'GMB',
+#   run_parameters = run_parameters, 
+#   parameter_draw = 0
+# )
+# 
+# # gmb_params_equil <- lapply(
+# #   gmb_params,
+# #   function(x){
+# #     p <- malariasimulation::set_equilibrium(x$param_list,
+# #                                        init_EIR = gmb_calibrated$eir_info$EIR)
+# #   }
+# # )
+# 
+# saveRDS(bfa_params, 'bfa_scen_parameters.rds')
+# saveRDS(gmb_params, 'gmb_scen_parameters.rds')
+# 
