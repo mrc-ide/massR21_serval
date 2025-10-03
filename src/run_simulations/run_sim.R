@@ -38,10 +38,36 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
   raw_output <- postie::drop_burnin(model, burnin = run_parameters$burnin)
   
   message('calculating rates')
+  
   rates <- postie::get_rates(
     raw_output,
-    baseline_year = 2000
+    baseline_year = 2020
   ) %>%# add identifying information to output
+    mutate(site_name = site_name,
+           scenario = scenario,
+           parameter_draw = parameter_draw,
+           population = run_parameters$population,
+           burnin = run_parameters$burnin)
+  
+  annual_output <- rates %>%
+    dplyr::summarise(
+      clinical = stats::weighted.mean(clinical, person_days),
+      severe = stats::weighted.mean(severe, person_days),
+      mortality = stats::weighted.mean(mortality, person_days),
+      yll = stats::weighted.mean(yll, person_days),
+      yld = stats::weighted.mean(yld, person_days),
+      dalys = stats::weighted.mean(dalys, person_days),
+      person_days = sum(person_days),
+      time = mean(time),
+      .by = c(year, age_lower, age_upper)
+    )
+  
+  # These are all in cases per person per day 
+  annual_rates <- annual_output %>%
+    mutate(
+      mortality = if_else(is.na(mortality), 0, mortality),
+      clinical = if_else(is.na(clinical), 0, clinical),
+    )%>%# add identifying information to output
     mutate(site_name = site_name,
            scenario = scenario,
            parameter_draw = parameter_draw,
@@ -66,25 +92,6 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
            population = run_parameters$population,
            burnin = run_parameters$burnin)
   
-  # annual_output <- rates %>% 
-  #   dplyr::summarise(
-  #     clinical = stats::weighted.mean(clinical, person_days),
-  #     severe = stats::weighted.mean(severe, person_days),
-  #     mortality = stats::weighted.mean(mortality, person_days),
-  #     yll = stats::weighted.mean(yll, person_days),
-  #     yld = stats::weighted.mean(yld, person_days),
-  #     dalys = stats::weighted.mean(dalys, person_days),
-  #     person_days = sum(person_days),
-  #     time = mean(time),
-  #     .by = c(year, age_lower, age_upper)
-  #   )
-  
-  # These are all in cases per person per day 
-  # annual_output <- annual_output %>%
-  #   mutate(
-  #     mortality = if_else(is.na(mortality), 0, mortality),
-  #     clinical = if_else(is.na(clinical), 0, clinical),
-  #   )
   monthly_rates <- monthly_output %>%
     mutate(
       mortality = if_else(is.na(mortality), 0, mortality),
@@ -100,22 +107,34 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
   # Get prevalence 
   prev <- raw_output %>%
     postie::get_prevalence(
-      diagnostic = 'pcr'
+      diagnostic = 'pcr',
+      baseline_year = 2020
     )
   
   prev_monthly <- prev %>%
     dplyr::summarise(
       dplyr::across(dplyr::everything(), mean),
       time = mean(.data$time),
-      .by = dplyr::all_of(month, year, time)
+      .by = c('month', 'year')
     )
   
-  monthly_output <- left_join(monthly_rates, prev_monthly)
+  prev_annual <- prev %>%
+    dplyr::summarise(
+      dplyr::across(dplyr::everything(), mean),
+      time = mean(.data$time),
+      .by = c('year')
+    )
   
-  daily_output <- left_join(prev, rates)
+  monthly_output <- left_join(monthly_rates, prev_monthly,
+                              by = c('month','year'))
+  
+  # daily_output <- left_join(rates, prev)
+  
+  annual_output <- left_join(annual_rates, prev_annual)
   
   return(list('monthly' = monthly_output,
-              # 'annual' = annual_output, 
-              'daily' = daily_output,
+              'annual' = annual_output,
+              # 'daily' = daily_output,
+              # 'raw' = raw_output,
               "parameters" = params_scenario))
 }

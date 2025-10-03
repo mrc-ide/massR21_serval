@@ -109,8 +109,6 @@ parameterize_site <- function(site_data,
   vax_min_age <- 6 * (365 / 12)
   vax_max_age <- 100 * 365
   
-  peak <- malariasimulation::peak_season_offset(params)
-  
   mass_timestep <- round(run_parameters$burnin + (peak - (365/12) * 3.5), 0)
   
   primary_coverage <- rep(0.75, length(mass_timestep))
