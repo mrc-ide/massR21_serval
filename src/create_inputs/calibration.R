@@ -10,10 +10,12 @@ calibration <- function(params,
   
   # Prepare a summary function that returns the mean incidence from each simulation output: 
   summary_mean_incidence <- function (x) {
+    # 121 is may 1 and 330 ish is end of Nov 
     
     x$year <- ceiling(x$timestep / 365)
     # Filter to most recent year 
     x <- x[x$year == max(x$year),]
+    x$timestep <- x$timestep - (params$timesteps-365)
     
     # Get month variable 
     x$month <- ceiling(x$timestep / (365/12))
@@ -22,7 +24,9 @@ calibration <- function(params,
       dplyr::group_by(month) %>%
       dplyr::summarise(clinical = sum(n_inc_clinical_0_36500),
                        mean_pop = mean(n_age_0_36500),
-                       inci = clinical / mean_pop)
+                       inci = clinical / mean_pop) %>%
+      # Filter to May-November which is when incidence was measured
+      dplyr::filter(month >= 5 & month < 12)
       
     # Calculate the mean monthly incidence in most recent year:
     # because of stable population, person-months is just the population * 12 months 
