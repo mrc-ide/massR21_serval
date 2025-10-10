@@ -84,7 +84,7 @@ run_parameters <- data.frame(
   max_ages = I(list(max_ages))
 )
 
-# Parameterize baseline - BFA
+# Parameterize baseline - 
 baseline_bfa_params <- parameterize_site(site_data = bfa_site_info,
                                          site_name = 'BFA',
                                          run_parameters = run_parameters, 

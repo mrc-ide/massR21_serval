@@ -8,7 +8,9 @@ parameterize_site <- function(site_data,
                               site_name,
                               run_parameters,
                               parameter_draw,
-                              scenario){
+                              scenario,
+                              adult_scaling, 
+                              ado_scaling){
   
   # Basic parameters
   params <- malariasimulation::get_parameters(
@@ -104,8 +106,8 @@ parameterize_site <- function(site_data,
   
   # Scenario parameters
   
-  adult_scaling <- 0.2
-  ado_scaling <- 0.5
+  # adult_scaling <- 0.2
+  # ado_scaling <- 0.5
   
   vax_min_age <- 6 * (365 / 12)
   vax_max_age <- 100 * 365

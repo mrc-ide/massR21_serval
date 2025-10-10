@@ -36,12 +36,22 @@ if(orderlyparams$country == 'BFA'){
 # send runs to cluster 
 parameter_draw <- seq(0,5)#seq(0,50)
 scenario <- orderlyparams$scenario#c('mass','mass+MDA','none')
+adult_scaling <- c(0.2, 0.4, 0.6, 0.8)
+ado_scaling <- c(0.2, 0.4, 0.6, 0.8)
 combo <- list()
 for (s in scenario) {
   for (p in parameter_draw) {
-    combo[[length(combo) + 1]] <- list(scenario = s, parameter_draw = p)
+    for (s in adult_scaling) {
+      for (ado in ado_scaling) {
+        combo[[length(combo) + 1]] <- list(scenario = s, 
+                                           parameter_draw = p,
+                                           adult_scaling = s, 
+                                           ado_scaling = ado)
+      }
+    }
   }
 }
+saveRDS(combo, 'combo_parameters.rds')
 
 cluster_cores <- Sys.getenv("CCP_NUMCPUS")
 message('number of cores: ', cluster_cores)
@@ -50,13 +60,15 @@ if (cluster_cores == "") {
   message("running in serial (on a laptop?)")
   
   results2 <- lapply(combo, 
-                     function(combo) {
+                     function(c) {
                        run_sim( 
                          site_data = site_data, # site inforamtion from site file, with calibrateD EIR
                          site_name = orderlyparams$country, # GMB or BFA
                          run_parameters, # small df of pop, burnin, etc.
-                         combo$parameter_draw, # 0-50
-                         orderlyparams$scenario)
+                         c$parameter_draw, # 0-50
+                         orderlyparams$scenario,
+                         c$adult_scaling, 
+                         c$ado_scaling)
                      })
   
 } else {
@@ -86,13 +98,15 @@ if (cluster_cores == "") {
 
   results2 <- parallel::clusterApply(cl,
                                      combo,
-                                     function(combo) {
-                                       run_sim(
+                                     function(c) {
+                                       run_sim( 
                                          site_data = site_data, # site inforamtion from site file, with calibrateD EIR
                                          site_name = orderlyparams$country, # GMB or BFA
                                          run_parameters, # small df of pop, burnin, etc.
-                                         combo$parameter_draw, # 0-50
-                                         orderlyparams$scenario)
+                                         c$parameter_draw, # 0-50
+                                         orderlyparams$scenario,
+                                         c$adult_scaling, 
+                                         c$ado_scaling)
                                      }
   )
   parallel::stopCluster(cl)
