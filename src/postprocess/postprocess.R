@@ -14,7 +14,7 @@ orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'GMB')",
                    files = c(no_interventionGMB.rds = 'model_outputs.rds'))
 
-noneBFA <- readRDS('no_interventionBFA.rds')
+noneBFA <- readRDS('no_interventionBFA.rds') 
 noneGMB <- readRDS('no_interventionGMB.rds')
 
 monthly <- bind_rows(lapply(noneBFA, `[[`, 1), lapply(noneGMB, `[[`, 1))
@@ -56,24 +56,28 @@ ggplot(annual_agg) +
   facet_wrap(~site_name, scales = 'free')
 
 
-ggplot(daily_agg %>% filter(age_lower == 0 & age_upper == 100)) + 
-  geom_line(aes(x = time, y = pcr_prevalence_0_100))
+
+# ggplot(daily_agg %>% filter(age_lower == 0 & age_upper == 100)) + 
+#   geom_line(aes(x = time, y = pcr_prevalence_0_100))
 
 
-ggplot(monthly_agg %>% filter(year < 2026 & age_grp == '0-100')) +
+ggplot(monthly_agg %>% filter(year <= 2024 & age_grp == '0-100')) +
   geom_ribbon(aes(x = date, ymin = clinical_monthly_lower, ymax = clinical_monthly_upper, color = age_grp, fill = age_grp), alpha = 0.3) + 
   geom_line(aes(x = date, y = clinical_monthly, color = age_grp)) +
   geom_point(aes(x = date, y = clinical_monthly, color = age_grp))  + 
+  scale_x_date(breaks = '2 month', labels = scales::label_date_short()) +
+  theme(axis.text.x = element_text(angle = 90)) +
   facet_grid(site_name ~ age_grp, scales = 'free')
-ggplot(monthly_agg %>% filter(year < 2026 & age_grp == '0-100')) +
+ggplot(monthly_agg %>% filter(year <= 2021 & age_grp == '0-100')) +
   geom_ribbon(aes(x = date, ymin = pcr_prevalence_0_100_lower, ymax = pcr_prevalence_0_100_upper, color = age_grp, fill = age_grp), alpha = 0.3) + 
   geom_line(aes(x = date, y = pcr_prevalence_0_100, color = age_grp)) +
   geom_point(aes(x = date, y = pcr_prevalence_0_100, color = age_grp))  + 
+  scale_x_date(breaks = '1 month', labels = scales::label_date_short()) +
   facet_grid(site_name ~ age_grp, scales = 'free')
 
 
 monthly_agg %>% ungroup() %>%
-  filter(year == 2024 & age_grp == '0-100') %>% 
+  filter(year == 2024 & age_grp == '0-100' & month >=5 & month <= 11 ) %>% 
   group_by(site_name) %>%
   summarise(across(c(clinical_monthly, clinical_monthly_lower, clinical_monthly_upper, 
                      pcr_prevalence_0_100, pcr_prevalence_0_100_lower, pcr_prevalence_0_100_upper),

@@ -134,7 +134,5 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
   
   return(list('monthly' = monthly_output,
               'annual' = annual_output,
-              # 'daily' = daily_output,
-              # 'raw' = raw_output,
               "parameters" = params_scenario))
 }
