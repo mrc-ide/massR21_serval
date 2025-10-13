@@ -120,7 +120,7 @@ parameterize_site <- function(site_data,
   # add mass vaccination 
   if(scenario == 'mass' | scenario == 'mass+MDA'){
     
-    pars <- malariasimulation::set_mass_pev(
+    params <- malariasimulation::set_mass_pev(
       params, 
       profile = malariasimulation::r21_profile,
       timesteps = mass_timestep,
@@ -169,7 +169,9 @@ parameterize_site <- function(site_data,
     'scenario' = scenario,
     'parameter_draw' = parameter_draw,
     'population' = run_parameters$population,
-    'burnin' =  run_parameters$burnin
+    'burnin' =  run_parameters$burnin,
+    'adult_scaling' = adult_scaling,
+    'ado_scaling' = ado_scaling
   )
   
   return(inputs)

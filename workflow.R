@@ -48,6 +48,8 @@ gmb_runs_both <- task_create_expr(orderly2::orderly_run('run_simulations',
                                                                      scenario = 'mass+MDA',
                                                                      description = 'GMB test range of scaling factors')),
                              resources = hipercow_resources(cores = ncores))
-task_log_show(bfa_runs_both)
+task_log_show(gmb_runs_both)
 
-# orderly2::orderly_run(name = 'postprocess')
+
+# Processing
+orderly2::orderly_run(name = 'postprocess')
