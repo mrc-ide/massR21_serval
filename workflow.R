@@ -20,8 +20,8 @@ gmb_runs3 <- task_create_expr(orderly2::orderly_run('run_simulations',
 task_log_show(gmb_runs3)
 
 
-# SCenarios
-ncores = 30
+# Scenarios
+ncores = 32
 bfa_runs <- task_create_expr(orderly2::orderly_run('run_simulations',
                                                     parameters = list(country = 'BFA',
                                                                       scenario = 'mass',
