@@ -34,18 +34,18 @@ if(orderlyparams$country == 'BFA'){
 # Run simulation
   
 # send runs to cluster 
-parameter_draw <- seq(0,5)#seq(0,50)
-scenario <- orderlyparams$scenario#c('mass','mass+MDA','none')
-adult_scaling <- c(0.2, 0.4, 0.6, 0.8)
-ado_scaling <- c(0.2, 0.4, 0.6, 0.8)
+parameter_drawvec <- seq(0)#seq(0,50)
+scenariovec <- orderlyparams$scenario#c('mass','mass+MDA','none')
+adult_scalingvec <- c(0.001, 0.1, 0.2, 0.4, 0.6, 0.8)
+ado_scalingvec <- c(0.001, 0.1, 0.2, 0.4, 0.6, 0.8)
 combo <- list()
-for (s in scenario) {
-  for (p in parameter_draw) {
-    for (s in adult_scaling) {
-      for (ado in ado_scaling) {
+for (s in scenariovec) {
+  for (p in parameter_drawvec) {
+    for (adult in adult_scalingvec) {
+      for (ado in ado_scalingvec) {
         combo[[length(combo) + 1]] <- list(scenario = s, 
                                            parameter_draw = p,
-                                           adult_scaling = s, 
+                                           adult_scaling = adult, 
                                            ado_scaling = ado)
       }
     }
@@ -64,11 +64,11 @@ if (cluster_cores == "") {
                        run_sim( 
                          site_data = site_data, # site inforamtion from site file, with calibrateD EIR
                          site_name = orderlyparams$country, # GMB or BFA
-                         run_parameters, # small df of pop, burnin, etc.
-                         c$parameter_draw, # 0-50
-                         orderlyparams$scenario,
-                         c$adult_scaling, 
-                         c$ado_scaling)
+                         run_parameters = run_parameters, # small df of pop, burnin, etc.
+                         parameter_draw = c$parameter_draw, # 0-50
+                         scenario = orderlyparams$scenario,
+                         adult_scaling = c$adult_scaling, 
+                         ado_scaling = c$ado_scaling)
                      })
   
 } else {
@@ -102,11 +102,11 @@ if (cluster_cores == "") {
                                        run_sim( 
                                          site_data = site_data, # site inforamtion from site file, with calibrateD EIR
                                          site_name = orderlyparams$country, # GMB or BFA
-                                         run_parameters, # small df of pop, burnin, etc.
-                                         c$parameter_draw, # 0-50
-                                         orderlyparams$scenario,
-                                         c$adult_scaling, 
-                                         c$ado_scaling)
+                                         run_parameters = run_parameters, # small df of pop, burnin, etc.
+                                         parameter_draw = c$parameter_draw, # 0-50
+                                         scenario = orderlyparams$scenario,
+                                         adult_scaling = c$adult_scaling, 
+                                         ado_scaling = c$ado_scaling)
                                      }
   )
   parallel::stopCluster(cl)

@@ -8,12 +8,12 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
   
   message('parameterizing')
   params_scenario_list <- parameterize_site(site_data = site_data,
-                    site_name = site_name,
-                    run_parameters = run_parameters, 
-                    parameter_draw = parameter_draw, 
-                    scenario = scenario,
-                    adult_scaling = adult_scaling,
-                    ado_scaling = ado_scaling)
+                                            site_name = site_name,
+                                            run_parameters = run_parameters, 
+                                            parameter_draw = parameter_draw, 
+                                            scenario = scenario,
+                                            adult_scaling = adult_scaling,
+                                            ado_scaling = ado_scaling)
   
   params_scenario <- params_scenario_list$param_list
   params_scenario$progress_bar <- TRUE
@@ -78,7 +78,9 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
            scenario = scenario,
            parameter_draw = parameter_draw,
            population = run_parameters$population,
-           burnin = run_parameters$burnin)
+           burnin = run_parameters$burnin,
+           adult_scaling = adult_scaling,
+           ado_scaling = ado_scaling)
   
   monthly_output <- rates %>% 
     dplyr::summarise(
