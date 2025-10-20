@@ -4,7 +4,8 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
                     parameter_draw, # 0-50
                     scenario,# mass, mass+MDA, none
                     adult_scaling, # vector of values
-                    ado_scaling){ 
+                    ado_scaling,
+                    u5_scaling){ 
   
   message('parameterizing')
   params_scenario_list <- parameterize_site(site_data = site_data,
@@ -13,7 +14,8 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
                                             parameter_draw = parameter_draw, 
                                             scenario = scenario,
                                             adult_scaling = adult_scaling,
-                                            ado_scaling = ado_scaling)
+                                            ado_scaling = ado_scaling,
+                                            u5_scaling = u5_scaling)
   
   params_scenario <- params_scenario_list$param_list
   params_scenario$progress_bar <- TRUE
@@ -53,7 +55,8 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
            population = run_parameters$population,
            burnin = run_parameters$burnin,
            adult_scaling = adult_scaling,
-           ado_scaling = ado_scaling)
+           ado_scaling = ado_scaling,
+           u5_scaling = u5_scaling)
   
   annual_output <- rates %>%
     dplyr::summarise(
@@ -80,7 +83,8 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
            population = run_parameters$population,
            burnin = run_parameters$burnin,
            adult_scaling = adult_scaling,
-           ado_scaling = ado_scaling)
+           ado_scaling = ado_scaling,
+           u5_scaling = u5_scaling)
   
   monthly_output <- rates %>% 
     dplyr::summarise(
@@ -100,7 +104,8 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
            population = run_parameters$population,
            burnin = run_parameters$burnin,
            adult_scaling = adult_scaling,
-           ado_scaling = ado_scaling)
+           ado_scaling = ado_scaling,
+           u5_scaling = u5_scaling)
   
   monthly_rates <- monthly_output %>%
     mutate(
@@ -113,7 +118,8 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
            population = run_parameters$population,
            burnin = run_parameters$burnin,
            adult_scaling = adult_scaling,
-           ado_scaling = ado_scaling)
+           ado_scaling = ado_scaling, 
+           u5_scaling = u5_scaling)
   
   message('calculating prevalence')
   # Get prevalence 

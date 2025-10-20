@@ -34,19 +34,23 @@ if(orderlyparams$country == 'BFA'){
 # Run simulation
   
 # send runs to cluster 
-parameter_drawvec <- seq(0)#seq(0,50)
+parameter_drawvec <- seq(0,2)
 scenariovec <- orderlyparams$scenario#c('mass','mass+MDA','none')
-adult_scalingvec <- c(0.001, 0.1, 0.2, 0.4, 0.6, 0.8)
-ado_scalingvec <- c(0.001, 0.1, 0.2, 0.4, 0.6, 0.8)
+adult_scalingvec <- c(0.005, 0.01)# 0.02, 0.05, 0.1, 0.2, 0.4)
+ado_scalingvec <- c(0.005, 0.01)# 0.02, 0.05, 0.1, 0.2, 0.4)
+u5_scalingvec <- c(0.001, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.6, 0.8, 0.9)
 combo <- list()
 for (s in scenariovec) {
   for (p in parameter_drawvec) {
     for (adult in adult_scalingvec) {
       for (ado in ado_scalingvec) {
-        combo[[length(combo) + 1]] <- list(scenario = s, 
-                                           parameter_draw = p,
-                                           adult_scaling = adult, 
-                                           ado_scaling = ado)
+        for(child in u5_scalingvec) {
+          combo[[length(combo) + 1]] <- list(scenario = s, 
+                                             parameter_draw = p,
+                                             adult_scaling = adult, 
+                                             ado_scaling = ado,
+                                             u5_scaling = child)
+        }
       }
     }
   }
@@ -68,7 +72,8 @@ if (cluster_cores == "") {
                          parameter_draw = c$parameter_draw, # 0-50
                          scenario = orderlyparams$scenario,
                          adult_scaling = c$adult_scaling, 
-                         ado_scaling = c$ado_scaling)
+                         ado_scaling = c$ado_scaling,
+                         u5_scaling = c$u5_scaling)
                      })
   
 } else {
@@ -106,7 +111,8 @@ if (cluster_cores == "") {
                                          parameter_draw = c$parameter_draw, # 0-50
                                          scenario = orderlyparams$scenario,
                                          adult_scaling = c$adult_scaling, 
-                                         ado_scaling = c$ado_scaling)
+                                         ado_scaling = c$ado_scaling,
+                                         u5_scaling = c$u5_scaling)
                                      }
   )
   parallel::stopCluster(cl)

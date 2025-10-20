@@ -108,7 +108,7 @@ ggplot(bfamonthly %>% filter(site_name == 'BFA' & year == 2020 & age_grp == '0-1
                  color = scenario), alpha = 0.4)  +
   theme(axis.text.x = element_text(angle = 90)) +
   facet_wrap(~adult_scaling + ado_scaling) + theme_minimal()
-ggplot(monthly %>% filter(site_name == 'GMB' & year == 2020 & age_grp == '0-100' & month >= 5 & month <=11 & parameter_draw == 0)) +
+ggplot(gmbmonthly %>% filter(site_name == 'GMB' & year == 2020 & age_grp == '0-100' & month >= 5 & month <=11 & parameter_draw == 0)) +
   # No int groups
   geom_line(aes(x = month, 
                 y = clinical_baseline, 

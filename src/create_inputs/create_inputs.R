@@ -66,7 +66,7 @@ bfa_site_info <- list(
 )
 
 # Basic model run parameters 
-population <- 1e5 
+population <- 5e5 
 
 burnin <- 20*365
 
@@ -89,12 +89,16 @@ baseline_bfa_params <- parameterize_site(site_data = bfa_site_info,
                                          site_name = 'BFA',
                                          run_parameters = run_parameters, 
                                          parameter_draw = 0, 
-                                         scenario = 'baseline')
+                                         scenario = 'baseline',
+                                         adult_scaling = 1, 
+                                         ado_scaling = 1)
 baseline_gmb_params <- parameterize_site(site_data = gmb_site_info,
                                          site_name = 'GMB',
                                          run_parameters = run_parameters, 
                                          parameter_draw = 0, 
-                                         scenario = 'baseline')
+                                         scenario = 'baseline',
+                                         adult_scaling = 1, 
+                                         ado_scaling = 1)
 
 
 # Calibrate to trial incidence ----
