@@ -8,6 +8,7 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
                     u5_scaling){ 
   
   message('parameterizing')
+  run_parameters$burnin <- 24*365
   params_scenario_list <- parameterize_site(site_data = site_data,
                                             site_name = site_name,
                                             run_parameters = run_parameters, 
@@ -47,7 +48,7 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
   
   rates <- postie::get_rates(
     raw_output,
-    baseline_year = 2020
+    baseline_year = 2024
   ) %>%# add identifying information to output
     mutate(site_name = site_name,
            scenario = scenario,
@@ -126,7 +127,7 @@ run_sim <- function(site_data, # site inforamtion from site file, with calibrate
   prev <- raw_output %>%
     postie::get_prevalence(
       diagnostic = 'pcr',
-      baseline_year = 2020
+      baseline_year = 2024
     )
   
   prev_monthly <- prev %>%

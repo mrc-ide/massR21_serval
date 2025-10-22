@@ -10,7 +10,8 @@ parameterize_site <- function(site_data,
                               parameter_draw,
                               scenario,
                               adult_scaling, 
-                              ado_scaling){
+                              ado_scaling,
+                              u5_scaling){
   
   # Basic parameters
   params <- malariasimulation::get_parameters(
@@ -105,10 +106,6 @@ parameterize_site <- function(site_data,
   params$prevalence_rendering_max_ages = unlist(run_parameters$max_ages)
   
   # Scenario parameters
-  
-  # adult_scaling <- 0.2
-  # ado_scaling <- 0.5
-  
   vax_min_age <- 6 * (365 / 12)
   vax_max_age <- 100 * 365
   
@@ -132,7 +129,8 @@ parameterize_site <- function(site_data,
       booster_coverage = matrix(boost_coverage, nrow = length(mass_timestep), ncol = 1),
       booster_profile = list(malariasimulation::r21_booster_profile),
       adult_scaling = adult_scaling, 
-      adolesc_scaling = ado_scaling
+      adolesc_scaling = ado_scaling,
+      u5_scaling = u5_scaling
     )
     
   } 
@@ -171,7 +169,8 @@ parameterize_site <- function(site_data,
     'population' = run_parameters$population,
     'burnin' =  run_parameters$burnin,
     'adult_scaling' = adult_scaling,
-    'ado_scaling' = ado_scaling
+    'ado_scaling' = ado_scaling,
+    'u5_scaling' = u5_scaling
   )
   
   return(inputs)

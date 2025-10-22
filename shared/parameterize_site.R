@@ -111,22 +111,57 @@ parameterize_site <- function(site_data,
   
   mass_timestep <- round(run_parameters$burnin + (peak - (365/12) * 3.5), 0)
   
-  primary_coverage <- rep(0.75, length(mass_timestep))
-  boost_coverage <- rep(0.75, length(mass_timestep)) # this is not reported in report 
+  # primary_coverage <- rep(0.75, length(mass_timestep))
+  # boost_coverage <- rep(0.75, length(mass_timestep)) # this is not reported in report
+  pop_summary <- demo %>%
+    mutate(age_group = case_when(
+      age_lower >= 0 & age_lower < 5 ~ "5m-5y",
+      age_lower >= 5 & age_lower < 15 ~ "5y-15y",
+      age_lower >= 15 ~ "15y+",
+      TRUE ~ NA_character_)) %>%
+    group_by(age_group) %>%
+    summarize(total_population = sum(population, na.rm = TRUE),
+              .groups = "drop") %>%
+    mutate(population_proportion = total_population / sum(total_population))
+  overallcoverage <- 0.7
+  prop_young <- pop_summary$population_proportion[pop_summary$age_group == "5m-5y"]
+  prop_other <- 1 - prop_young
+  coverage_for_o5s <- (overallcoverage - prop_young) / prop_other
+  
+  primary_coverage_adults <- rep(coverage_for_o5s, length(mass_timestep))
+  primary_coverage_u5 <- rep(1, length(mass_timestep))
+  boost_coverage_adults <- primary_coverage_adults
+  boost_coverage_u5 <- primary_coverage_u5
   
   # add mass vaccination 
   if(scenario == 'mass' | scenario == 'mass+MDA'){
-    
+    # under 5s
     params <- malariasimulation::set_mass_pev(
       params, 
       profile = malariasimulation::r21_profile,
       timesteps = mass_timestep,
-      coverages = primary_coverage,
+      coverages = primary_coverage_u5,
       min_ages = vax_min_age, 
+      max_ages = 5*365-1, 
+      min_wait = 0,
+      booster_spacing = 365,
+      booster_coverage = matrix(boost_coverage_u5, nrow = length(mass_timestep), ncol = 1),
+      booster_profile = list(malariasimulation::r21_booster_profile),
+      adult_scaling = adult_scaling, 
+      adolesc_scaling = ado_scaling,
+      u5_scaling = u5_scaling
+    )
+    # over 5s
+    params <- malariasimulation::set_mass_pev(
+      params, 
+      profile = malariasimulation::r21_profile,
+      timesteps = mass_timestep,
+      coverages = primary_coverage_adults,
+      min_ages = 5*365, 
       max_ages = vax_max_age, 
       min_wait = 0,
       booster_spacing = 365,
-      booster_coverage = matrix(boost_coverage, nrow = length(mass_timestep), ncol = 1),
+      booster_coverage = matrix(boost_coverage_adults, nrow = length(mass_timestep), ncol = 1),
       booster_profile = list(malariasimulation::r21_booster_profile),
       adult_scaling = adult_scaling, 
       adolesc_scaling = ado_scaling,

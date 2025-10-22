@@ -68,9 +68,9 @@ bfa_site_info <- list(
 # Basic model run parameters 
 population <- 5e5 
 
-burnin <- 20*365
+burnin <- 24*365 # 24 years of burnin, from 2000-end of 2023
 
-sim_length <- 20*365
+sim_length <- 20*365 # 20 years from 2024 Jan 1
 
 min_ages <- c(0, 5 * 365, 15 * 365, 0)
 max_ages <- c(5 * 365, 15 * 365, 100 * 365, 100 * 365)

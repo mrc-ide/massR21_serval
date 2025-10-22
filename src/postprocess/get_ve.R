@@ -3,8 +3,8 @@ get_ve <- function(df, # country-specific monthly dataset
   
   df2 <- df %>% ungroup() %>%
     filter(site_name == site) %>%
-    filter(year == 2020 & (month >=5 & month <= 11)) %>%
-    group_by(age_lower, age_upper, parameter_draw, scenario, adult_scaling, ado_scaling) %>%
+    filter(year == 2024 & (month >=5 & month <= 11)) %>%
+    group_by(age_lower, age_upper, parameter_draw, scenario, adult_scaling, ado_scaling, u5_scaling) %>%
     summarize(clinical_mean = weighted.mean(clinical, person_days)) %>%
     ungroup()
   
@@ -19,7 +19,7 @@ get_ve <- function(df, # country-specific monthly dataset
                    noneinci)
   
   ve_by_age <- all %>%
-    group_by(age_lower, age_upper, parameter_draw, scenario, adult_scaling, ado_scaling) %>%
+    group_by(age_lower, age_upper, parameter_draw, scenario, adult_scaling, ado_scaling, u5_scaling) %>%
     mutate(
       IRR = clinical_mean / clinical_mean_none, 
       ve = (1 - IRR) 
