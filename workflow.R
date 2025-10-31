@@ -22,6 +22,38 @@ task_log_show('68998c0424bd9d312acc94e2dd0d08d9')
 
 # Scenarios
 ncores = 32
+# Mass
+bfa_runs_lim <- task_create_expr(orderly2::orderly_run('run_simulations',
+                                                    parameters = list(country = 'BFA',
+                                                                      scenario = 'mass',
+                                                                      description = 'BFA test range of scaling factors, avg coverage, limited scaling')),
+                              resources = hipercow_resources(cores = ncores))
+task_log_show(bfa_runs)
+task_log_show(bfa_runs_lim)
+
+gmb_runs_lim <- task_create_expr(orderly2::orderly_run('run_simulations',
+                                                    parameters = list(country = 'GMB',
+                                                                      scenario = 'mass',
+                                                                      description = 'GMB test range of scaling factors, avg coverage, limited scaling')),
+                              resources = hipercow_resources(cores = ncores))
+task_log_show(gmb_runs)
+task_log_show(gmb_runs_lim)
+# Mass+MDA
+bfa_runs_both_lim <- task_create_expr(orderly2::orderly_run('run_simulations',
+                                                   parameters = list(country = 'BFA',
+                                                                     scenario = 'mass+MDA',
+                                                                     description = 'BFA test range of scaling factors, avg coverage, limited scaling')),
+                             resources = hipercow_resources(cores = ncores))
+task_log_show(bfa_runs_both)
+task_log_show(bfa_runs_both_lim)
+gmb_runs_both_lim <- task_create_expr(orderly2::orderly_run('run_simulations',
+                                                   parameters = list(country = 'GMB',
+                                                                     scenario = 'mass+MDA',
+                                                                     description = 'GMB test range of scaling factors, avg coverage, limited scaling')),
+                             resources = hipercow_resources(cores = ncores))
+task_log_show(gmb_runs_both)
+task_log_show(gmb_runs_both_lim)
+# No vaccination 
 bfa_none <- task_create_expr(orderly2::orderly_run('run_simulations',
                                                    parameters = list(country = 'BFA',
                                                                      scenario = 'none',
@@ -36,33 +68,6 @@ gmb_none <- task_create_expr(orderly2::orderly_run('run_simulations',
                              resources = hipercow_resources(cores = ncores))
 task_log_show(gmb_none)
 
-bfa_runs <- task_create_expr(orderly2::orderly_run('run_simulations',
-                                                    parameters = list(country = 'BFA',
-                                                                      scenario = 'mass',
-                                                                      description = 'BFA test range of scaling factors u5, vary coverage')),
-                              resources = hipercow_resources(cores = ncores))
-task_log_show(bfa_runs)
-
-gmb_runs <- task_create_expr(orderly2::orderly_run('run_simulations',
-                                                    parameters = list(country = 'GMB',
-                                                                      scenario = 'mass',
-                                                                      description = 'GMB test range of scaling factors u5, vary coverage')),
-                              resources = hipercow_resources(cores = ncores))
-task_log_show(gmb_runs)
-
-bfa_runs_both <- task_create_expr(orderly2::orderly_run('run_simulations',
-                                                   parameters = list(country = 'BFA',
-                                                                     scenario = 'mass+MDA',
-                                                                     description = 'BFA test range of scaling factors u5, vary coverage')),
-                             resources = hipercow_resources(cores = ncores))
-task_log_show(bfa_runs_both)
-
-gmb_runs_both <- task_create_expr(orderly2::orderly_run('run_simulations',
-                                                   parameters = list(country = 'GMB',
-                                                                     scenario = 'mass+MDA',
-                                                                     description = 'GMB test range of scaling factors u5, vary coverage')),
-                             resources = hipercow_resources(cores = ncores))
-task_log_show(gmb_runs_both)
 
 
 # Processing

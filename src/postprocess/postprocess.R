@@ -27,7 +27,9 @@ orderly_dependency(name = 'run_simulations',
                    files = c(massBFA.rds = 'model_outputs.rds'))
 orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'GMB' &&
-                   parameter:scenario == 'mass')",
+                   parameter:scenario == 'mass' &&
+                   parameter:description == 'GMB test range of scaling factors, avg coverage, limited scaling'
+                   )",
                    files = c(massGMB.rds = 'model_outputs.rds'))
 
 orderly_dependency(name = 'run_simulations',
@@ -36,7 +38,9 @@ orderly_dependency(name = 'run_simulations',
                    files = c(massMDABFA.rds = 'model_outputs.rds'))
 orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'GMB' &&
-                   parameter:scenario == 'mass+MDA')",
+                   parameter:scenario == 'mass+MDA' &&
+                   parameter:description == 'GMB test range of scaling factors, avg coverage, limited scaling'
+                   )",
                    files = c(massMDAGMB.rds = 'model_outputs.rds'))
 
 # Read in data and combine ----
@@ -161,8 +165,52 @@ target_irrs <- data.frame(
 #              .names = "{.col}_{.fn}") ) %>%
 #   # rename those variables with _median to be just the variable name 
 #   dplyr::rename_with(.fn = \(x)sub("_median","", x)) )
+bfa_ve <- bfa_ve %>%
+  mutate(adult_scaling = paste0('Adult: ', adult_scaling),
+         ado_scaling = paste0('Ado: ', ado_scaling),
+         u5_scaling = paste0('U5: ',u5_scaling)) %>%
+  mutate(age_grp = factor(age_grp, levels = c('0-5','5-15','15-100','0-100')))
+gmb_ve <- gmb_ve%>%
+  mutate(adult_scaling = paste0('Adult: ', adult_scaling),
+         ado_scaling = paste0('Ado: ', ado_scaling),
+         u5_scaling = paste0('U5: ',u5_scaling)) %>%
+  mutate(age_grp = factor(age_grp, levels = c('0-5','5-15','15-100','0-100')))
 # Plot IRR (int/none)
-irrbfa <- ggplot(bfa_ve %>% filter(parameter_draw == 0)) +
+irrbfa <- ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 0.8')) +
+  geom_col(aes(x = scenario,
+               y = IRR,
+               fill = age_grp),
+           position = 'dodge') +
+  geom_hline(data = target_irrs %>% filter(country == 'BFA'), 
+             aes(yintercept = target, color = age_group), linetype = 2, linewidth = 1) +
+  scale_fill_manual(values = c('0-100' = 'tan',
+                               '0-5'='limegreen',
+                               '5-15'='purple',
+                               '15-100'='darkblue'))+
+  scale_color_manual(values = c('0-100' = 'tan',
+                                'u5'='limegreen',
+                                '5-14'='purple',
+                                '15+'='darkblue'))+
+  facet_wrap(~adult_scaling + ado_scaling + u5_scaling) + 
+  labs(title = 'BFA')
+ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 0.9')) +
+  geom_col(aes(x = scenario,
+               y = IRR,
+               fill = age_grp),
+           position = 'dodge') +
+  geom_hline(data = target_irrs %>% filter(country == 'BFA'), 
+             aes(yintercept = target, color = age_group), linetype = 2, linewidth = 1) +
+  scale_fill_manual(values = c('0-100' = 'tan',
+                               '0-5'='limegreen',
+                               '5-15'='purple',
+                               '15-100'='darkblue'))+
+  scale_color_manual(values = c('0-100' = 'tan',
+                                'u5'='limegreen',
+                                '5-14'='purple',
+                                '15+'='darkblue'))+
+  facet_wrap(~adult_scaling + ado_scaling + u5_scaling) + 
+  labs(title = 'BFA')
+ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 1')) +
   geom_col(aes(x = scenario,
                y = IRR,
                fill = age_grp),
@@ -182,10 +230,10 @@ irrbfa <- ggplot(bfa_ve %>% filter(parameter_draw == 0)) +
                                 'u5'='limegreen',
                                 '5-14'='purple',
                                 '15+'='darkblue'))+
-  facet_wrap(~adult_scaling + ado_scaling + u5_scaling) + 
+  facet_grid(adult_scaling ~ ado_scaling) + 
   labs(title = 'BFA')
 ggsave(paste0('plots/IRR_BFA.png'), irrbfa, height = 12, width = 20)
-irrgmb <- ggplot(gmb_ve %>% filter(parameter_draw == 0)) +
+irrgmb <- ggplot(gmb_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 1')) +
   geom_col(aes(x = scenario,
                y = IRR,
                fill = age_grp),
@@ -200,7 +248,7 @@ irrgmb <- ggplot(gmb_ve %>% filter(parameter_draw == 0)) +
                                 'u5'='limegreen',
                                 '5-14'='purple',
                                 '15+'='darkblue'))+
-  facet_wrap(~adult_scaling + ado_scaling + u5_scaling) +
+  facet_grid(adult_scaling ~ ado_scaling) +
   labs(title = 'GMB')
 ggsave(paste0('plots/IRR_GMB.png'), irrgmb, height = 12, width = 20)
 

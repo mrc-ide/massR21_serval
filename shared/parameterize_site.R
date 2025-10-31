@@ -138,7 +138,8 @@ parameterize_site <- function(site_data,
     site = c('GMB','BFA'), 
     cov_05 = c(0.649,  0.734), 
     cov_515 = c(0.769, 0.820),
-    cov_15 = c(0.459, 0.524)
+    cov_15 = c(0.459, 0.524),
+    cov_avg = c(0.566, 0.654)
   )
   
   # add mass vaccination 
@@ -146,50 +147,19 @@ parameterize_site <- function(site_data,
     cov_05 = rep(vax_coverage[vax_coverage$site == site_name,]$cov_05, length(mass_timestep))
     cov_515 = rep(vax_coverage[vax_coverage$site == site_name,]$cov_515, length(mass_timestep))
     cov_15 = rep(vax_coverage[vax_coverage$site == site_name,]$cov_15, length(mass_timestep))
+    cov_avg = rep(vax_coverage[vax_coverage$site == site_name,]$cov_avg, length(mass_timestep))
     
-    # under 5s
+    # All mass vaccination
     params <- malariasimulation::set_mass_pev(
       params, 
       profile = malariasimulation::r21_profile,
       timesteps = mass_timestep,
-      coverages = cov_05,
+      coverages = cov_avg,
       min_ages = vax_min_age, 
-      max_ages = 5*365-1, 
-      min_wait = 0,
-      booster_spacing = 365,
-      booster_coverage = matrix(0, nrow = length(mass_timestep), ncol = 1), # no boosters in initial trial
-      booster_profile = list(malariasimulation::r21_booster_profile),
-      adult_scaling = adult_scaling, 
-      adolesc_scaling = ado_scaling,
-      u5_scaling = u5_scaling
-    )
-    # 5-15s
-    params <- malariasimulation::set_mass_pev(
-      params, 
-      profile = malariasimulation::r21_profile,
-      timesteps = mass_timestep,
-      coverages = cov_515,
-      min_ages = 5*365, 
-      max_ages = 15*365-1, 
-      min_wait = 0,
-      booster_spacing = 365,
-      booster_coverage = matrix(0, nrow = length(mass_timestep), ncol = 1),
-      booster_profile = list(malariasimulation::r21_booster_profile),
-      adult_scaling = adult_scaling, 
-      adolesc_scaling = ado_scaling,
-      u5_scaling = u5_scaling
-    )
-    # 15+s
-    params <- malariasimulation::set_mass_pev(
-      params, 
-      profile = malariasimulation::r21_profile,
-      timesteps = mass_timestep,
-      coverages = cov_15,
-      min_ages = 15*365, 
       max_ages = vax_max_age, 
       min_wait = 0,
       booster_spacing = 365,
-      booster_coverage = matrix(0, nrow = length(mass_timestep), ncol = 1),
+      booster_coverage = matrix(0, nrow = length(mass_timestep), ncol = 1), # no boosters in initial trial
       booster_profile = list(malariasimulation::r21_booster_profile),
       adult_scaling = adult_scaling, 
       adolesc_scaling = ado_scaling,
