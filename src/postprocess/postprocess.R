@@ -12,6 +12,7 @@ source('summarise_over_draws.R')
 source('get_averted.R')
 source('get_ve.R')
 
+# None
 orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'BFA' &&
                    parameter:scenario == 'none')",
@@ -20,10 +21,11 @@ orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'GMB' &&
                    parameter:scenario == 'none')",
                    files = c(no_interventionGMB.rds = 'model_outputs.rds'))
-
+# Mass
 orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'BFA' &&
-                   parameter:scenario == 'mass')",
+                   parameter:scenario == 'mass' &&
+                   parameter:description == 'BFA test range of scaling factors, avg coverage, limited scaling')",
                    files = c(massBFA.rds = 'model_outputs.rds'))
 orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'GMB' &&
@@ -31,10 +33,11 @@ orderly_dependency(name = 'run_simulations',
                    parameter:description == 'GMB test range of scaling factors, avg coverage, limited scaling'
                    )",
                    files = c(massGMB.rds = 'model_outputs.rds'))
-
+# Mass+MDA
 orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'BFA' &&
-                   parameter:scenario == 'mass+MDA')",
+                   parameter:scenario == 'mass+MDA' &&
+                   parameter:description == 'BFA test range of scaling factors, avg coverage, limited scaling')",
                    files = c(massMDABFA.rds = 'model_outputs.rds'))
 orderly_dependency(name = 'run_simulations',
                    "latest(parameter:country == 'GMB' &&
@@ -97,7 +100,7 @@ gmbmonthly <- get_averted(monthly,
 
 
 # Get incidence per 100 person months over May-November 2024 
-monthly %>% filter(site_name == 'BFA' & year == 2024 & age_grp == '0-100' & month >= 5 & month <=11 &
+avgincibfa <- monthly %>% filter(site_name == 'BFA' & year == 2024 & age_grp == '0-100' & month >= 5 & month <=11 &
                      scenario == 'none') %>%
   group_by(u5_scaling, adult_scaling, ado_scaling, scenario, parameter_draw) %>%
   summarise(clinical = mean(clinical)*100 * 30) %>%
@@ -106,8 +109,8 @@ monthly %>% filter(site_name == 'BFA' & year == 2024 & age_grp == '0-100' & mont
   ggplot() + 
   geom_bar(aes(x = scenario, y = clinical, group = parameter_draw, fill = parameter_draw),
            position = 'dodge', stat = 'identity') #+ theme(legend.position = 'none')
-
-monthly %>% filter(site_name == 'GMB' & year == 2024 & age_grp == '0-100' & month >= 5 & month <=11 &
+ggsave('average_inci_BFA.png', avgincibfa)
+avgincigmb <- monthly %>% filter(site_name == 'GMB' & year == 2024 & age_grp == '0-100' & month >= 5 & month <=11 &
                      scenario == 'none') %>%
   group_by(u5_scaling, adult_scaling, ado_scaling, scenario, parameter_draw) %>%
   summarise(clinical = mean(clinical)*100 * 30) %>%
@@ -116,7 +119,7 @@ monthly %>% filter(site_name == 'GMB' & year == 2024 & age_grp == '0-100' & mont
   ggplot() + 
   geom_bar(aes(x = scenario, y = clinical, group = parameter_draw, fill = parameter_draw),
            position = 'dodge', stat = 'identity')
-
+ggsave('average_inci_GMB.png', avgincigmb)
 # ggplot(bfamonthly %>% filter(site_name == 'BFA' & year == 2024 & age_grp == '0-100' & month >= 5 & month <=11 & parameter_draw == 0)) +
 #   # No int groups
 #   geom_line(aes(x = month,
@@ -176,50 +179,11 @@ gmb_ve <- gmb_ve%>%
          u5_scaling = paste0('U5: ',u5_scaling)) %>%
   mutate(age_grp = factor(age_grp, levels = c('0-5','5-15','15-100','0-100')))
 # Plot IRR (int/none)
-irrbfa <- ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 0.8')) +
+irrbfa <- ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 1')) +
   geom_col(aes(x = scenario,
                y = IRR,
                fill = age_grp),
            position = 'dodge') +
-  geom_hline(data = target_irrs %>% filter(country == 'BFA'), 
-             aes(yintercept = target, color = age_group), linetype = 2, linewidth = 1) +
-  scale_fill_manual(values = c('0-100' = 'tan',
-                               '0-5'='limegreen',
-                               '5-15'='purple',
-                               '15-100'='darkblue'))+
-  scale_color_manual(values = c('0-100' = 'tan',
-                                'u5'='limegreen',
-                                '5-14'='purple',
-                                '15+'='darkblue'))+
-  facet_wrap(~adult_scaling + ado_scaling + u5_scaling) + 
-  labs(title = 'BFA')
-ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 0.9')) +
-  geom_col(aes(x = scenario,
-               y = IRR,
-               fill = age_grp),
-           position = 'dodge') +
-  geom_hline(data = target_irrs %>% filter(country == 'BFA'), 
-             aes(yintercept = target, color = age_group), linetype = 2, linewidth = 1) +
-  scale_fill_manual(values = c('0-100' = 'tan',
-                               '0-5'='limegreen',
-                               '5-15'='purple',
-                               '15-100'='darkblue'))+
-  scale_color_manual(values = c('0-100' = 'tan',
-                                'u5'='limegreen',
-                                '5-14'='purple',
-                                '15+'='darkblue'))+
-  facet_wrap(~adult_scaling + ado_scaling + u5_scaling) + 
-  labs(title = 'BFA')
-ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 1')) +
-  geom_col(aes(x = scenario,
-               y = IRR,
-               fill = age_grp),
-           position = 'dodge') +
-  # geom_errorbar(aes(x = scenario,
-  #              ymin = IRR_lower,
-  #              ymax = IRR_upper,
-  #              color = age_grp),
-  #          position = 'dodge') +
   geom_hline(data = target_irrs %>% filter(country == 'BFA'), 
              aes(yintercept = target, color = age_group), linetype = 2, linewidth = 1) +
   scale_fill_manual(values = c('0-100' = 'tan',
@@ -232,7 +196,7 @@ ggplot(bfa_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 1')) +
                                 '15+'='darkblue'))+
   facet_grid(adult_scaling ~ ado_scaling) + 
   labs(title = 'BFA')
-ggsave(paste0('plots/IRR_BFA.png'), irrbfa, height = 12, width = 20)
+ggsave(paste0('plots/IRR_BFA.png'), irrbfa, height = 12, width = 20) # 0.1 and 0.1 for adults and ado are good, nothing is good for U5s
 irrgmb <- ggplot(gmb_ve %>% filter(parameter_draw == 0, u5_scaling == 'U5: 1')) +
   geom_col(aes(x = scenario,
                y = IRR,

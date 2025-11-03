@@ -36,9 +36,17 @@ if(orderlyparams$country == 'BFA'){
 # send runs to cluster 
 parameter_drawvec <- seq(0)
 scenariovec <- orderlyparams$scenario#c('mass','mass+MDA','none')
-adult_scalingvec <- if(orderlyparams$scenario !='none') c(0.05, 0.1, 0.7, 0.8) else 1 # maybe 0.05-0.1 for BFA and 0.4ish for GMB
-ado_scalingvec <- if(orderlyparams$scenario !='none') c(0.05, 0.1, 0.7, 0.8) else 1# maybe 0.05-0.1 for BFA and 0.4ish for GMB
-u5_scalingvec <- if(orderlyparams$scenario !='none') c(0.9, 1) else 1
+adult_scalingvec <- if(orderlyparams$country == 'BFA' & orderlyparams$scenario != 'none') {
+  c(0.05, 0.1, 0.15) 
+  } else if(orderlyparams$country == 'GMB' & orderlyparams$scenario != 'none') {
+    c(0.7, 0.8, 0.9)
+  } else 1 
+ado_scalingvec <- if(orderlyparams$country == 'BFA' & orderlyparams$scenario != 'none') {
+  c(0.05, 0.1, 0.15) 
+} else if(orderlyparams$country == 'GMB' & orderlyparams$scenario != 'none') {
+  c(0.7, 0.8, 0.9)
+} else 1
+u5_scalingvec <- 1
 combo <- list()
 for (s in scenariovec) {
   for (p in parameter_drawvec) {

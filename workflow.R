@@ -71,5 +71,6 @@ task_log_show(gmb_none)
 
 
 # Processing
+# to process most recent simulation tasks, may need to change the description parameter in the postprocess task to match the description of the tasks you want to run
 task_process <- hipercow::task_create_expr(orderly2::orderly_run(name = 'postprocess'))
 task_log_show(task_process)
