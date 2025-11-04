@@ -27,9 +27,9 @@ parameterize_site <- function(site_data,
   
   # Demography
   demo <- site_data$demography[site_data$demography$year == '2024',]
-  ages <- round(unique(site_data$demography$age_upper) * 365)
-  timesteps <- 365 * (unique(site_data$demography$year) - 2000)
-  deathrates <- site_data$demography$adjusted_mortality_rates / 365
+  ages <- round(unique(demo$age_upper) * 365)
+  timesteps <- 0#365 * (unique(demo$year) - 2000)
+  deathrates <- demo$adjusted_mortality_rates / 365
   deathrates_matrix <- matrix(deathrates, nrow = length(timesteps), byrow = TRUE)
   # Add parameters
   params <- malariasimulation::set_demography(
